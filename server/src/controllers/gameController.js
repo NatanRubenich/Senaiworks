@@ -1,6 +1,47 @@
 const Game = require('../models/Game');
 const path = require('path');
 
+// Helper: invalidate store publication when store-related data changes
+const invalidateStoreIfPublished = (game) => {
+  if (game.storePublished) {
+    game.storePublished = false;
+    game.tabStatus.storePublish = 'pending';
+    game.reviewHistory.push({
+      action: 'invalidated',
+      date: new Date(),
+      reason: 'Dados da loja alterados após publicação. Nova aprovação necessária.',
+    });
+    recalculateStatus(game);
+  }
+};
+
+// Helper: invalidate config publication when config-related data changes
+const invalidateConfigIfPublished = (game) => {
+  if (game.configPublished) {
+    game.configPublished = false;
+    game.tabStatus.configPublish = 'pending';
+    game.reviewHistory.push({
+      action: 'invalidated',
+      date: new Date(),
+      reason: 'Configurações alteradas após publicação. Nova aprovação necessária.',
+    });
+    recalculateStatus(game);
+  }
+};
+
+// Helper: recalculate game status based on publication flags
+const recalculateStatus = (game) => {
+  if (game.storePublished && game.configPublished) {
+    game.status = 'Em Análise';
+  } else if (game.storePublished) {
+    game.status = 'Loja em Revisão';
+  } else if (game.configPublished) {
+    game.status = 'Config em Revisão';
+  } else {
+    game.status = 'Rascunho';
+  }
+};
+
 // POST /api/games — Create a new game
 exports.createGame = async (req, res) => {
   try {
@@ -58,6 +99,7 @@ exports.updateBasicData = async (req, res) => {
     game.basicData = { gameName, appType: appType || 'Game', developerName, publisherName, genres: genres || [], tags: tags || '', languages: languages || [] };
     game.appConfig.appName = gameName;
     game.tabStatus.basicData = gameName && developerName ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -86,6 +128,7 @@ exports.updateDescription = async (req, res) => {
       specialAnnouncements: specialAnnouncements || [],
     };
     game.tabStatus.description = (longDescription && shortDescription) ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -113,6 +156,7 @@ exports.updateStoreGraphics = async (req, res) => {
     const allCapsules = ['headerCapsule', 'smallCapsule', 'mainCapsule', 'verticalCapsule'];
     const allValid = allCapsules.every(c => game.storeGraphics[c]?.url && game.storeGraphics[c]?.validated);
     game.tabStatus.storeGraphics = allValid ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
 
     await game.save();
     res.json({ game });
@@ -130,6 +174,7 @@ exports.updateScreenshots = async (req, res) => {
     const { screenshots } = req.body;
     game.screenshots = screenshots || [];
     game.tabStatus.screenshots = (game.screenshots.length >= 5) ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -151,6 +196,7 @@ exports.addScreenshot = async (req, res) => {
       order: game.screenshots.length,
     });
     game.tabStatus.screenshots = (game.screenshots.length >= 5) ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -166,6 +212,7 @@ exports.deleteScreenshot = async (req, res) => {
 
     game.screenshots = game.screenshots.filter(s => s._id.toString() !== req.params.screenshotId);
     game.tabStatus.screenshots = (game.screenshots.length >= 5) ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -195,6 +242,7 @@ exports.updateLibraryAssets = async (req, res) => {
     const allAssets = ['libraryCapsule', 'libraryHeader', 'libraryHero', 'libraryLogo'];
     const allValid = allAssets.every(a => game.libraryAssets[a]?.url && game.libraryAssets[a]?.validated);
     game.tabStatus.libraryAssets = allValid ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
 
     await game.save();
     res.json({ game });
@@ -211,6 +259,7 @@ exports.updateTrailers = async (req, res) => {
 
     game.trailers = req.body.trailers || [];
     game.tabStatus.trailers = game.trailers.length > 0 ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -229,6 +278,7 @@ exports.addTrailer = async (req, res) => {
       order: game.trailers.length,
     });
     game.tabStatus.trailers = 'complete';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -244,6 +294,7 @@ exports.deleteTrailer = async (req, res) => {
 
     game.trailers = game.trailers.filter(t => t._id.toString() !== req.params.trailerId);
     game.tabStatus.trailers = game.trailers.length > 0 ? 'complete' : 'pending';
+    invalidateStoreIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -296,6 +347,7 @@ exports.updateAppConfig = async (req, res) => {
 
     const hasOS = os && (os.windows || os.macOS || os.linux);
     game.tabStatus.appConfig = hasOS ? 'complete' : 'pending';
+    invalidateConfigIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -319,6 +371,7 @@ exports.updateBuildUpload = async (req, res) => {
       uploadedAt: new Date(),
     };
     game.tabStatus.depotUpload = fileName ? 'complete' : 'pending';
+    invalidateConfigIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -337,6 +390,7 @@ exports.updateDepots = async (req, res) => {
     if (manageDLCSeparately !== undefined) game.manageDLCSeparately = manageDLCSeparately;
     if (baseLanguages !== undefined) game.baseLanguages = baseLanguages;
     game.tabStatus.depotManage = (game.depots.length > 0) ? 'complete' : 'pending';
+    invalidateConfigIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {
@@ -361,6 +415,7 @@ exports.updateInstallConfig = async (req, res) => {
     const hasLaunch = game.installConfig.launchOptions.length > 0 &&
       game.installConfig.launchOptions.some(lo => lo.executable);
     game.tabStatus.installConfig = hasLaunch ? 'complete' : 'pending';
+    invalidateConfigIfPublished(game);
     await game.save();
     res.json({ game });
   } catch (error) {

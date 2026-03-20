@@ -21,6 +21,7 @@ const PublishStoreTab = ({ game, onSave }) => {
   };
 
   const allComplete = CHECKLIST_ITEMS.every(item => getChecklistStatus(item.key));
+  const wasInvalidated = !game.storePublished && game.storeSubmittedAt;
 
   const handlePublish = async () => {
     setError('');
@@ -52,6 +53,18 @@ const PublishStoreTab = ({ game, onSave }) => {
         <div className="sw-success-box">
           ✅ Página da loja já foi publicada em {new Date(game.storeSubmittedAt).toLocaleDateString('pt-BR')}.
           Status atual: <strong>{game.status}</strong>
+        </div>
+      )}
+
+      {wasInvalidated && (
+        <div className="sw-warning-box" style={{ borderLeft: '4px solid #e5c07b', padding: '12px 16px' }}>
+          ⚠️ <strong>Alterações detectadas após a última publicação</strong>
+          <br />
+          <span style={{ fontSize: '12px', color: '#c7d5e0' }}>
+            Dados da página da loja foram modificados desde a última submissão
+            em {new Date(game.storeSubmittedAt).toLocaleDateString('pt-BR')}.
+            É necessário enviar novamente para análise para que as alterações sejam aprovadas.
+          </span>
         </div>
       )}
 
@@ -97,7 +110,7 @@ const PublishStoreTab = ({ game, onSave }) => {
           disabled={loading || !allComplete || game.storePublished}
           style={{ fontSize: '14px', padding: '10px 24px' }}
         >
-          {loading ? 'Publicando...' : game.storePublished ? 'Já Publicado' : 'Publicar Página da Loja'}
+          {loading ? 'Publicando...' : game.storePublished ? 'Já Publicado' : wasInvalidated ? 'Reenviar para Análise' : 'Publicar Página da Loja'}
         </button>
       </div>
     </div>

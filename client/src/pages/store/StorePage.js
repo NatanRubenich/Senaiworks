@@ -15,7 +15,7 @@ const STORE_TABS = [
   { key: 'description', label: 'Descrição', statusKey: 'description' },
   { key: 'classifications', label: 'Classificações', disabled: true },
   { key: 'earlyAccess', label: 'Acesso antecipado', disabled: true },
-  { key: 'graphics', label: 'Recursos gráficos', statusKey: 'storeGraphics' },
+  { key: 'graphics', label: 'Recursos gráficos', statusKey: 'graphicsAll' },
   { key: 'trailers', label: 'Trailers', statusKey: 'trailers' },
   { key: 'specialConfig', label: 'Configurações especiais', disabled: true },
   { key: 'translation', label: 'Tradução', disabled: true },
@@ -55,6 +55,14 @@ const StorePage = () => {
 
   const getTabStatus = (statusKey) => {
     if (!game || !statusKey) return '';
+    if (statusKey === 'graphicsAll') {
+      const keys = ['storeGraphics', 'screenshots', 'libraryAssets'];
+      const allComplete = keys.every(k => game.tabStatus?.[k] === 'complete');
+      if (allComplete) return '✅';
+      const hasError = keys.some(k => game.tabStatus?.[k] === 'error');
+      if (hasError) return '❌';
+      return '⚠️';
+    }
     const s = game.tabStatus?.[statusKey];
     if (s === 'complete') return '✅';
     if (s === 'error') return '❌';

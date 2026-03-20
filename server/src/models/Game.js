@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const reviewEntrySchema = new mongoose.Schema({
-  action: { type: String, enum: ['submitted', 'approved', 'rejected', 'resubmitted'] },
+  action: { type: String, enum: ['submitted', 'approved', 'rejected', 'resubmitted', 'invalidated'] },
   date: { type: Date, default: Date.now },
   reason: { type: String, default: '' },
   by: { type: String, default: '' },

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { gameAPI } from '../../../services/api';
 import { SCREENSHOT_MIN_COUNT, validateScreenshot } from '../../../config/constants';
 
@@ -8,6 +8,8 @@ const ScreenshotsTab = ({ game, onSave }) => {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+  const dragIdxRef = useRef(null);
   const screenshots = game.screenshots || [];
 
   const processFile = useCallback(async (file) => {
@@ -60,7 +62,6 @@ const ScreenshotsTab = ({ game, onSave }) => {
     }
   };
 
-  // eslint-disable-next-line no-unused-vars
   const handleReorder = async (fromIdx, toIdx) => {
     const reordered = [...screenshots];
     const [moved] = reordered.splice(fromIdx, 1);
@@ -73,6 +74,7 @@ const ScreenshotsTab = ({ game, onSave }) => {
       console.error(err);
     }
   };
+
 
   return (
     <div>
@@ -139,33 +141,56 @@ const ScreenshotsTab = ({ game, onSave }) => {
       </div>
 
       {/* Screenshot list */}
-      {screenshots.map((ss, idx) => (
-        <div key={ss._id || idx} className="sw-card" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <div style={{ cursor: 'grab', color: '#556772', fontSize: '16px', padding: '8px' }}>☰</div>
-          <div style={{ width: '200px', flexShrink: 0 }}>
-            <img src={`${API_BASE}${ss.url}`} alt={ss.altText || `Screenshot ${idx + 1}`}
-              style={{ width: '100%', borderRadius: '2px', border: '1px solid #2a475e' }} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <span style={{ fontSize: '12px', color: '#8f98a0' }}>Inglês</span>
-              <span style={{ fontSize: '12px', color: '#8f98a0' }}>Screenshot</span>
+      <div>
+        {screenshots.map((ss, idx) => (
+          <div
+            key={ss._id || idx}
+            draggable
+            onDragStart={() => { dragIdxRef.current = idx; }}
+            onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx); }}
+            onDragLeave={() => setDragOverIdx(null)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOverIdx(null);
+              if (dragIdxRef.current !== null && dragIdxRef.current !== idx) {
+                handleReorder(dragIdxRef.current, idx);
+              }
+              dragIdxRef.current = null;
+            }}
+            onDragEnd={() => { dragIdxRef.current = null; setDragOverIdx(null); }}
+            className="sw-card"
+            style={{
+              display: 'flex', gap: '12px', alignItems: 'flex-start',
+              borderTop: dragOverIdx === idx ? '2px solid #66c0f4' : '2px solid transparent',
+              transition: 'border-color 0.15s',
+            }}
+          >
+            <div style={{ cursor: 'grab', color: '#556772', fontSize: '16px', padding: '8px' }}>☰</div>
+            <div style={{ width: '200px', flexShrink: 0 }}>
+              <img src={`${API_BASE}${ss.url}`} alt={ss.altText || `Screenshot ${idx + 1}`}
+                style={{ width: '100%', borderRadius: '2px', border: '1px solid #2a475e' }} />
             </div>
-            <label className="sw-checkbox-group" style={{ fontSize: '12px' }}>
-              <input type="checkbox" checked={ss.ageAppropriate !== false} readOnly />
-              Apropriada para todas as idades
-            </label>
-          </div>
-          <div style={{ width: '260px', flexShrink: 0 }}>
-            <div className="sw-dropzone" style={{ padding: '12px', fontSize: '11px' }}>
-              Solte imagens aqui para adicionar versões traduzidas desta captura de tela
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ fontSize: '12px', color: '#8f98a0' }}>Inglês</span>
+                <span style={{ fontSize: '12px', color: '#8f98a0' }}>Screenshot</span>
+              </div>
+              <label className="sw-checkbox-group" style={{ fontSize: '12px' }}>
+                <input type="checkbox" checked={ss.ageAppropriate !== false} readOnly />
+                Apropriada para todas as idades
+              </label>
             </div>
+            <div style={{ width: '260px', flexShrink: 0 }}>
+              <div className="sw-dropzone" style={{ padding: '12px', fontSize: '11px' }}>
+                Solte imagens aqui para adicionar versões traduzidas desta captura de tela
+              </div>
+            </div>
+            <button className="sw-btn sw-btn-sm sw-btn-danger" onClick={() => handleDelete(ss._id)} title="Excluir">
+              ×
+            </button>
           </div>
-          <button className="sw-btn sw-btn-sm sw-btn-danger" onClick={() => handleDelete(ss._id)} title="Excluir">
-            ×
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* Save button */}
       <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '16px' }}>

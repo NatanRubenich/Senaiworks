@@ -75,7 +75,7 @@ export const validateImageDimensions = (file, requiredWidth, requiredHeight, min
     img.onload = () => {
       URL.revokeObjectURL(url);
       if (minHeight) {
-        if (img.width === requiredWidth && img.height >= minHeight && img.height <= requiredHeight) {
+        if (img.width >= requiredWidth && img.height >= minHeight && img.height <= requiredHeight) {
           resolve({ width: img.width, height: img.height, valid: true });
         } else {
           resolve({ width: img.width, height: img.height, valid: false });
