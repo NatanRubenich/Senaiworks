@@ -28,12 +28,6 @@ const TopBar = () => {
             <span style={{ display: 'inline-block', width: 8, height: 8, background: '#66c0f4', marginLeft: 1, marginBottom: 8 }}></span>
             <span style={{ display: 'inline-block', width: 8, height: 8, background: '#1b2838', border: '1px solid #66c0f4', marginBottom: 0 }}></span>
           </div>
-          <div className="sw-top-bar-links">
-            <a href="/#" onClick={e => { e.preventDefault(); }}>Documentação</a>
-            <a href="/#" onClick={e => { e.preventDefault(); }}>Recursos</a>
-            <a href="/#" onClick={e => { e.preventDefault(); }}>Notícias e atualizações</a>
-            <a href="/#" onClick={e => { e.preventDefault(); }}>Suporte</a>
-          </div>
         </div>
         {user && (
           <div className="sw-top-bar-user">

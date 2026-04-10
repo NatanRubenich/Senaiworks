@@ -14,9 +14,6 @@ const NavBar = () => {
   const devLinks = [
     { label: 'Painel', path: '/dashboard' },
     { label: 'Aplicativos e pacotes', path: '/games', highlight: true },
-    { label: 'Ferramentas', path: '#' },
-    { label: 'Usuários e permissões', path: '#' },
-    { label: 'Dados financeiros', path: '#' },
   ];
 
   const adminLinks = [
@@ -38,11 +35,10 @@ const NavBar = () => {
                   ? 'active' 
                   : ''
               } ${link.highlight ? '' : ''}`}
-              onClick={() => link.path !== '#' && navigate(link.path)}
-              style={{ cursor: link.path === '#' ? 'default' : 'pointer', opacity: link.path === '#' ? 0.6 : 1 }}
+              onClick={() => navigate(link.path)}
+              style={{ cursor: 'pointer' }}
             >
               {link.label}
-              {link.path === '#' && <span style={{ fontSize: '8px', marginLeft: '2px' }}>▼</span>}
             </div>
           ))}
         </div>

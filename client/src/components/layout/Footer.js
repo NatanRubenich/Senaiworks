@@ -25,24 +25,6 @@ const Footer = () => {
               configurar, gerenciar e operar o seu jogo na plataforma.
             </p>
           </div>
-          <div className="sw-footer-col">
-            <h4>Documentação</h4>
-            <a href="/#">Início</a>
-            <a href="/#">Primeiros passos</a>
-            <a href="/#">Presença na loja</a>
-            <a href="/#">Recursos</a>
-            <a href="/#">Finanças</a>
-          </div>
-          <div className="sw-footer-col">
-            <h4>Recursos</h4>
-            <a href="/#">Discussões do SenaiWorks</a>
-            <a href="/#">Videotutoriais</a>
-          </div>
-          <div className="sw-footer-col">
-            <h4>Notícias e Atualizações</h4>
-            <a href="/#">Blog do SenaiWorks</a>
-            <a href="/#">Blog do SENAI</a>
-          </div>
         </div>
       </div>
     </footer>
