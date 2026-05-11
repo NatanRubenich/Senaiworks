@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: #f8f9fb;
+  color: #191c1e;
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+/* Glass overlay used in carousels */
+.glass-overlay {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* "Gamer Accent" subtle diagonal hatching */
+.gamer-accent {
+  position: relative;
+  overflow: hidden;
+}
+.gamer-accent::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 11px);
+  pointer-events: none;
+}
+
+/* Hide horizontal scrollbar in carousels */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Primary gradient button */
+.btn-primary {
+  background: linear-gradient(135deg, #002068 0%, #003399 100%);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 8px 24px -8px rgba(0, 51, 153, 0.4);
+}
+.btn-primary:hover { box-shadow: 0 12px 32px -8px rgba(0, 51, 153, 0.55); }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary {
+  background: #e1e2e4;
+  color: #002068;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  transition: transform 0.15s, background 0.2s;
+}
+.btn-secondary:hover { background: #c4c5d5; }
+.btn-secondary:active { transform: scale(0.97); }
+
+.btn-orange {
+  background: #FE7600;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 9999px;
+  padding: 0.5rem 1.5rem;
+  transition: transform 0.15s, background 0.2s;
+}
+.btn-orange:hover { background: #e85d00; }
+.btn-orange:active { transform: scale(0.95); }
+
+/* Smooth fade for route transitions */
+.route-fade-enter { opacity: 0; transform: translateY(10px); }
+.route-fade-enter-active { opacity: 1; transform: translateY(0); transition: all 0.4s ease; }

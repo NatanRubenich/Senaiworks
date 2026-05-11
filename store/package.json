@@ -1,0 +1,30 @@
+{
+  "name": "senaiworks-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SenaiWorks Store — Loja pública dos jogos publicados pelo SenaiWorks",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "framer-motion": "^11.2.10",
+    "lucide-react": "^0.378.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "PORT=3001 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  },
+  "proxy": "http://localhost:5000",
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0"
+  }
+}
